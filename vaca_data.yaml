@@ -1,0 +1,12 @@
+path: ./datasets/vaca_pose
+train: train/images
+val: val/images
+
+# 8 pontos marcados conforme seu JSON [cite: 1, 4, 7, 9, 12, 14, 17, 20]
+# [withers, back, hook_up, hook_down, hip, tail_head, pin_up, pin_down]
+kpt_shape: [8, 3]
+
+flip_idx: [0, 1, 3, 2, 4, 5, 7, 6]
+
+names:
+  0: cow
