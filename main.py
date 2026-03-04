@@ -1,8 +1,7 @@
 from ultralytics import YOLO
 
 def main():
-    # 1. Carrega o modelo YOLOv8 Nano Pose (pré-treinado)
-    # Ele é ideal para começar pois é leve e o M4 vai processar com extrema rapidez.
+    # 1. Carrega o modelo YOLOv26 Nano Pose (pré-treinado)
     model = YOLO('yolo26n-pose.pt') 
 
     
@@ -11,10 +10,10 @@ def main():
         epochs=100,
         imgsz=640,
         device='mps',      
-        batch=32,            # REDUZIDO: Para evitar que o M4 use SWAP e perca velocidade
+        batch=32, 
         workers=8,         
         cache='ram',       
-        rect=True,           # Essencial para manter a velocidade em imagens largas
+        rect=True,
         amp=False,           
         # --- Seus Ajustes Finos de Augmentation ---
         fliplr=0.0,      
@@ -27,7 +26,7 @@ def main():
         hsv_h=0.015,     
         hsv_s=0.7,       
         hsv_v=0.4,
-        # --- hiperparâmetros do YOLOv8 ---      
+        # --- hiperparâmetros ---      
         lr0=0.001,
         lrf=0.001, 
         flipud=1.0,
@@ -39,12 +38,11 @@ def main():
     )
     
     # 3. Validação Final (Evaluate)
-    # Após o treino, rodamos uma validação detalhada no conjunto 'val'
     metrics = model.val()
     
     print("--- Resultados da Avaliação ---")
     print(f"Precisão dos Pontos (mAP50-95): {metrics.pose.map}")
-    print(f"Resultados salvos na pasta: trabalho_vaca/experimento_8pts")
+    print(f"Resultados salvos na pasta: trabalho_vaca/resultados")
 
 if __name__ == '__main__':
     main()

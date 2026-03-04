@@ -87,6 +87,7 @@ class AnalistaBiometrico:
             (self.ANCORA_SUP, self.QUADRIL_CENTRAL, self.ANCORA_INF),
             (self.ISQUIO_SUP, self.INSERCAO_CAUDA, self.ISQUIO_INF)
         ]
+        
         for p_a, v, p_b in combinacoes:
             features.append(self.angulo(k_alin[p_a], k_alin[v], k_alin[p_b]))
 

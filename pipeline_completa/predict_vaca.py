@@ -8,24 +8,25 @@ from extrator_visual import ExtratorVisual
 from bimetria_vaca.modelo_assinatura import RedeGeradoraDeAssinatura
 
 class IdentificadorVacaPreditor:
-    def __init__(self, pose_model_path="runs/pose/trabalho_vaca/resultados/weights/best.pt", input_dim=818):
+    def __init__(self, input_dim=818):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
         
-        # 1. Carregar os extratores (YOLO + DINOv2)
-        self.pipeline = PipelineIdentificacaoVacas(pose_model_path)
+        # Carregar os extratores (YOLO + DINOv2)
+        self.pipeline = PipelineIdentificacaoVacas(os.getenv("CAMINHO_MODELO_POSE"))
         self.extrator_visual = ExtratorVisual()
 
-        # 2. Inicializar a rede de Embedding
+        # Inicializar a rede de Embedding
         self.embed_net = RedeGeradoraDeAssinatura(input_dim=input_dim, embedding_dim=128)
-        pesos_path = "modelo_embedding.pth"
+        pesos_path = os.getenv("MODELO_EMBEDDING")
+
         if os.path.exists(pesos_path):
             self.embed_net.load_state_dict(torch.load(pesos_path, map_location=self.device))
-            print(f"✅ Pesos do Embedding carregados (Dim: {input_dim})")
+            print(f"Pesos do Embedding carregados (Dim: {input_dim})")
         
         self.embed_net.to(self.device).eval()
 
-        # 3. Carregar o Classificador XGBoost
-        self.identificador = joblib.load("identificador_completo.pkl")
+        # Carregar o Classificador XGBoost
+        self.identificador = joblib.load(os.getenv("CLASSIFICADOR_XGBOOST"))
 
     def desenhar_validacao(self, caminho_img, kps, id_real, id_pred, conf_yolo, pasta_out="validacao_manual"):
         """ Gera a prova visual com keypoints e predição """

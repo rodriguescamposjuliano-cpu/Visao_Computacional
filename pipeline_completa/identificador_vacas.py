@@ -51,7 +51,6 @@ class IdentificadorVacas:
         plt.legend()
         plt.grid(True)
         plt.savefig('curva_aprendizado_xgboost.png')
-        print("📊 Gráfico salvo como 'curva_aprendizado_xgboost.png'")
         plt.show()
 
     def classificar(self, matriz_features):

@@ -31,14 +31,15 @@ class TreinadorPorComparacao:
         self.modelo.train() # Coloca o modelo em modo de treinamento
         for epoca in range(epocas):
             perda_total = 0
-            for a, p, n in carregador:
-                # Move os dados para o hardware escolhido (GPU/CPU)
-                a, p, n = a.to(self.dispositivo), p.to(self.dispositivo), n.to(self.dispositivo)
+            for ancora, positivo, negativo in carregador:
+                # Move os dados para o hardware escolhido
+                ancora, positivo, negativo = ancora.to(self.dispositivo), positivo.to(self.dispositivo), negativo.to(self.dispositivo)
                 
-                self.otimizador.zero_grad() # Limpa a memória de cálculos anteriores
+                # Limpa a memória de cálculos anteriores
+                self.otimizador.zero_grad()
                 
                 # A rede gera assinaturas para os três exemplos e calcula o erro
-                perda = self.funcao_perda(self.modelo(a), self.modelo(p), self.modelo(n))
+                perda = self.funcao_perda(self.modelo(ancora), self.modelo(positivo), self.modelo(negativo))
                 
                 perda.backward() # Calcula como ajustar a rede para errar menos
                 self.otimizador.step() # Aplica os ajustes nos pesos da rede

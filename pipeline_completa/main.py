@@ -1,44 +1,40 @@
-# ============================================================
-# PIPELINE COMPLETO - VERSÃO AJUSTADA E SINCRONIZADA (COM AUGMENTATION)
-# ============================================================
-
+# =====================================================
+# PIPELINE COMPLETO - Identificação Individual de Vacas
+# =====================================================
+import os
+import seaborn as sns
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 import torch
 import joblib
-import os
-from sklearn.model_selection import train_test_split, StratifiedKFold
-from sklearn.metrics import (accuracy_score, classification_report)
+from dotenv import load_dotenv
 
+from sklearn.model_selection import train_test_split, StratifiedKFold
+from sklearn.metrics import (accuracy_score, classification_report, confusion_matrix)
 from pipeline_identificacao_vacas import PipelineIdentificacaoVacas
 from gerenciador_dados import GerenciadorDados
 from identificador_vacas import IdentificadorVacas
-
 from bimetria_vaca.utilitarios_dados import criar_triplas_de_comparacao
 from bimetria_vaca.treinador_biometrico import TreinadorPorComparacao 
+
+load_dotenv()
 
 if __name__ == "__main__":
 
     # Configurações de Caminho
-    POSE_MODEL_PATH = "runs/pose/trabalho_vaca/resultados/weights/best.pt"
-    DATASET_FOLDER = "dataset_classificacao/"
+    POSE_MODEL_PATH = os.getenv("CAMINHO_MODELO_POSE")
+    DATASET_FOLDER = os.getenv("PASTA_DATASET_CLASSIFICACAO")
 
-    # ============================================================
-    # ITEM 3 — FEATURE EXTRACTION
-    # ============================================================
-    print("\n[ITEM 3] Extração de features...")
-
+    # ==================================================================
+    # 3 — Generate features that could potentially identify each animal
+    # ==================================================================
+    
     pipeline = PipelineIdentificacaoVacas(POSE_MODEL_PATH)
-    dataset = GerenciadorDados(DATASET_FOLDER, pipeline)
+    gerenciadorDados = GerenciadorDados(DATASET_FOLDER, pipeline)
 
     # X: features (818 dim), cow_ids: nomes das pastas (strings), y_encoded: índices (int)
-    X, cow_ids, y_encoded = dataset.obtenha_informacoes()
+    X, cow_ids, y_encoded = gerenciadorDados.obtenha_informacoes()
 
-    # --- NOVO: DATA AUGMENTATION PARA GENERALIZAÇÃO ---
-    # Isso resolve o problema de 100% no treino vs 60% na validação
-    print("\n[AUGMENTATION] Criando variações para robustez na validação cega...")
-    
     # Adiciona um ruído gaussiano leve (simula pequenas variações de pose)
     X_ruido_forte = X + np.random.normal(0, 0.04, X.shape) # Mais ruído
     X_escala_menor = X * 0.95                             # Simula vaca mais longe
@@ -54,50 +50,72 @@ if __name__ == "__main__":
     # ============================================================
     # TREINAMENTO TRIPLET (MELHORIA DA REPRESENTAÇÃO)
     # ============================================================
-    print("\n[TRIPLET] Gerando triplets para treinamento métrico...")
+    
     # Usamos os dados aumentados para gerar os pares/trios
     triplets = criar_triplas_de_comparacao(X_final, y_encoded_final)
     print(f"Total de triplets gerados: {len(triplets)}")
 
     treinador_triplet = TreinadorPorComparacao(
-        dimensao_entrada=X_final.shape[1], # Será 818
+        dimensao_entrada=X_final.shape[1],
         dimensao_assinatura=128
     )
 
-    # Aumentamos para 100 epochs para lidar com a maior massa de dados
-    print("\n[TRIPLET] Treinando rede de embedding (100 epochs)...")
     treinador_triplet.executar_treinamento(triplets, epocas=100)
 
-    print("\n[TRIPLET] Gerando embeddings finais...")
+    # Obtém os embeddings finais para o classificador
     X_embedding = treinador_triplet.extrair_assinatura_final(X_final)
 
-    # ============================================================
-    # ITEM 5 — MODEL TRAINING
-    # ============================================================
-    print("\n[ITEM 5] Treinando classificador final (XGBoost)...")
+    # =====================================================================
+    # 5 — Design and train a machine learning model to classify the animals
+    # =====================================================================
 
-    # Instanciamos passando o encoder original do dataset
-    identifier = IdentificadorVacas(label_encoder=dataset.label_encoder)
+    # Classificador XGBoost
+    identificador = IdentificadorVacas(label_encoder=gerenciadorDados.label_encoder)
 
     # Split para validação rápida usando os dados aumentados
     X_train, X_test, y_train, y_test = train_test_split(
         X_embedding, cow_ids_final, test_size=0.15, stratify=cow_ids_final, random_state=42
     )
 
-    identifier.treinar(X_train, y_train)
+    identificador.treinar(X_train, y_train)
 
-    # ============================================================
-    # ITEM 6 — MODEL EVALUATION
-    # ============================================================
-    print("\n[ITEM 6] Avaliação do modelo (Hold-out)...")
-
-    y_pred = identifier.classificar(X_test)
+    # ====================================================================
+    # 6 — Evaluate the model using hold-out and cross-validation techniques
+    # ====================================================================
+   
+    y_pred = identificador.classificar(X_test)
 
     acc = accuracy_score(y_test, y_pred)
-    print(f"Acurácia no Teste (com Augmentation): {acc:.4f}")
 
     print("\nClassification Report:")
     print(classification_report(y_test, y_pred))
+
+    # ====================================================================
+    # GERAÇÃO DA MATRIZ DE CONFUSÃO
+    # ====================================================================
+
+    # Criar a matriz numérica
+    cm = confusion_matrix(y_test, y_pred)
+
+    # Obter os nomes das vacas para os eixos do gráfico
+    nomes_vacas = np.unique(y_test)
+
+    # Configurar o visual do gráfico
+    plt.figure(figsize=(12, 10))
+    sns.heatmap(
+        cm, 
+        annot=True,      # Escreve os números dentro dos quadrados
+        fmt='d',         # Formato de número inteiro
+        cmap='Blues',    # Cor azul (claro para poucos erros, escuro para muitos acertos)
+        xticklabels=nomes_vacas, 
+        yticklabels=nomes_vacas
+    )
+
+    plt.title('Matriz de Confusão - Identificação Individual de Vacas')
+    plt.ylabel('Identidade Real (Gabarito)')
+    plt.xlabel('Identidade Prevista (Sistema)')
+    plt.savefig('matriz_confusao_final.png')
+
 
     # ============================================================
     # CROSS-VALIDATION (5-FOLD)
@@ -108,7 +126,7 @@ if __name__ == "__main__":
     cv_scores = []
 
     for i, (train_idx, test_idx) in enumerate(skf.split(X_embedding, cow_ids_final)):
-        modelo_cv = IdentificadorVacas(label_encoder=dataset.label_encoder)
+        modelo_cv = IdentificadorVacas(label_encoder=gerenciadorDados.label_encoder)
         
         X_cv_train, X_cv_test = X_embedding[train_idx], X_embedding[test_idx]
         y_cv_train, y_cv_test = cow_ids_final[train_idx], cow_ids_final[test_idx]
@@ -120,17 +138,16 @@ if __name__ == "__main__":
         cv_scores.append(score)
         print(f" > Dobra {i+1}: Acurácia = {score:.4f}")
 
-    print(f"\nResultados Finais CV:")
+    print(f"\nResultados Finais validação cruzada:")
     print(f" - Média: {np.mean(cv_scores):.4f}")
     print(f" - Desvio Padrão: {np.std(cv_scores):.4f}")
 
     # ============================================================
     # SALVAMENTO FINAL
     # ============================================================
-    print("\n[FINAL] Exportando modelos...")
+    
+    torch.save(treinador_triplet.modelo.state_dict(), os.getenv("MODELO_EMBEDDING"))
+    joblib.dump(identificador, os.getenv("CLASSIFICADOR_XGBOOST"))
+    joblib.dump(gerenciadorDados.label_encoder, os.getenv("LABEL_ENCODER"))
 
-    torch.save(treinador_triplet.modelo.state_dict(), "modelo_embedding.pth")
-    joblib.dump(identifier, "identificador_completo.pkl")
-    joblib.dump(dataset.label_encoder, "label_encoder.pkl")
-
-    print("Pipeline finalizado. Modelos robustos e prontos para o 'predict_vaca.py'!")
+    print("Pipeline finalizada com sucesso!")
