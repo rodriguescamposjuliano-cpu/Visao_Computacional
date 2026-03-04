@@ -11,16 +11,15 @@ import os
 from sklearn.model_selection import train_test_split, StratifiedKFold
 from sklearn.metrics import (
     accuracy_score,
-    classification_report,
-    confusion_matrix
+    classification_report
 )
 
 from pipeline_identificacao_vacas import PipelineIdentificacaoVacas
 from gerenciador_dataset import GerenciadorDataset
 from identificador_vacas import IdentificadorVacas
 
-from triplet.triplet_utils import gerar_triplets
-from triplet.treinador_triplet import TreinadorTriplet
+from bimetria_vaca.utilitarios_dados import criar_triplas_de_comparacao
+from bimetria_vaca.treinador_biometrico import TreinadorPorComparacao 
 
 if __name__ == "__main__":
 
@@ -60,20 +59,20 @@ if __name__ == "__main__":
     # ============================================================
     print("\n[TRIPLET] Gerando triplets para treinamento métrico...")
     # Usamos os dados aumentados para gerar os pares/trios
-    triplets = gerar_triplets(X_final, y_encoded_final)
+    triplets = criar_triplas_de_comparacao(X_final, y_encoded_final)
     print(f"Total de triplets gerados: {len(triplets)}")
 
-    treinador_triplet = TreinadorTriplet(
-        input_dim=X_final.shape[1], # Será 818
-        embedding_dim=128
+    treinador_triplet = TreinadorPorComparacao(
+        dimensao_entrada=X_final.shape[1], # Será 818
+        dimensao_assinatura=128
     )
 
     # Aumentamos para 400 epochs para lidar com a maior massa de dados
-    print("\n[TRIPLET] Treinando rede de embedding (400 epochs)...")
-    treinador_triplet.treinar(triplets, epochs=100)
+    print("\n[TRIPLET] Treinando rede de embedding (100 epochs)...")
+    treinador_triplet.executar_treinamento(triplets, epocas=100)
 
     print("\n[TRIPLET] Gerando embeddings finais...")
-    X_embedding = treinador_triplet.gerar_embedding(X_final)
+    X_embedding = treinador_triplet.extrair_assinatura_final(X_final)
 
     # ============================================================
     # ITEM 5 — MODEL TRAINING
@@ -133,7 +132,7 @@ if __name__ == "__main__":
     # ============================================================
     print("\n[FINAL] Exportando modelos...")
 
-    torch.save(treinador_triplet.model.state_dict(), "modelo_embedding.pth")
+    torch.save(treinador_triplet.modelo.state_dict(), "modelo_embedding.pth")
     joblib.dump(identifier, "identificador_completo.pkl")
     joblib.dump(dataset.label_encoder, "label_encoder.pkl")
 

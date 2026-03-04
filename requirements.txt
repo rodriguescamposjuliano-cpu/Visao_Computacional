@@ -1,0 +1,21 @@
+# Bibliotecas principais
+ultralytics>=8.0.0
+opencv-python
+
+# Motor de IA (Versões estáveis para CPU/GPU)
+torch
+torchvision
+torchaudio
+
+# Processamento e Extração de Features (Item 3 do seu trabalho)
+numpy
+pandas
+scipy
+scikit-learn
+
+# Visualização e logs
+matplotlib
+tqdm
+pyyaml
+
+scikit-image

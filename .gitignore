@@ -9,9 +9,12 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
-*.jpg
 *.png
-*.txt
 *.json
 
 jsons_originais/
+dataset_classificacao/
+dataset_validacao/
+validacao_manual/
+datasets/
+imagens_originais/
