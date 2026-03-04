@@ -25,14 +25,14 @@ def criar_triplas_de_comparacao(features, rotulos, total_triplas=10000):
         pode_repetir = len(indices_da_vaca) < 2
 
         for _ in range(triplas_por_vaca):
-            # 1. Escolhe a Âncora e um Positivo (duas fotos da mesma vaca)
+            # Escolhe a Âncora e um Positivo (duas fotos da mesma vaca)
             idx_ancora, idx_positivo = np.random.choice(
                 indices_da_vaca,
                 size=2,
                 replace=pode_repetir
             )
 
-            # 2. Escolhe um Negativo (uma foto de qualquer outra vaca diferente)
+            # Escolhe um Negativo (uma foto de qualquer outra vaca diferente)
             id_negativo = random.choice([l for l in ids_unicos if l != id_ancora])
             idx_negativo = random.choice(indices_por_vaca[id_negativo])
 
@@ -46,5 +46,5 @@ def criar_triplas_de_comparacao(features, rotulos, total_triplas=10000):
     # Embaralha os trios para que a rede não aprenda uma vaca por vez
     random.shuffle(lista_triplas)
     
-    print(f"✅ Sucesso: {len(lista_triplas)} triplas geradas ({triplas_por_vaca} por vaca).")
+    print(f"Sucesso: {len(lista_triplas)} triplas geradas ({triplas_por_vaca} por vaca).")
     return lista_triplas
