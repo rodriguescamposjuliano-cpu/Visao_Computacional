@@ -3,15 +3,13 @@
 # ============================================================
 
 from ultralytics import YOLO
-from extrator_features_vacas import ExtratorFeaturesVacas
+from analista_biometrico import AnalistaBiometrico
 import logging
-
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(message)s"
 )
-
 
 class PipelineIdentificacaoVacas:
 
@@ -22,11 +20,11 @@ class PipelineIdentificacaoVacas:
         - Extrator responsável por gerar as features das vacas
         """
         self.modelo_pose = YOLO(caminho_modelo_pose)
-        self.extrator_features = ExtratorFeaturesVacas()
+        self.extrator_features = AnalistaBiometrico()
 
-    # --------------------------------------------------------
+    # ------------------------------------------------
     # EXTRAÇÃO DE FEATURES A PARTIR DE UMA IMAGEM
-    # --------------------------------------------------------
+    # ------------------------------------------------
     def extrair_features_imagem(self, caminho_imagem):
         """
         Executa:

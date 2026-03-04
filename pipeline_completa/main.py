@@ -9,13 +9,10 @@ import torch
 import joblib
 import os
 from sklearn.model_selection import train_test_split, StratifiedKFold
-from sklearn.metrics import (
-    accuracy_score,
-    classification_report
-)
+from sklearn.metrics import (accuracy_score, classification_report)
 
 from pipeline_identificacao_vacas import PipelineIdentificacaoVacas
-from gerenciador_dataset import GerenciadorDataset
+from gerenciador_dados import GerenciadorDados
 from identificador_vacas import IdentificadorVacas
 
 from bimetria_vaca.utilitarios_dados import criar_triplas_de_comparacao
@@ -33,10 +30,10 @@ if __name__ == "__main__":
     print("\n[ITEM 3] Extração de features...")
 
     pipeline = PipelineIdentificacaoVacas(POSE_MODEL_PATH)
-    dataset = GerenciadorDataset(DATASET_FOLDER, pipeline)
+    dataset = GerenciadorDados(DATASET_FOLDER, pipeline)
 
     # X: features (818 dim), cow_ids: nomes das pastas (strings), y_encoded: índices (int)
-    X, cow_ids, y_encoded = dataset.load_dataset()
+    X, cow_ids, y_encoded = dataset.obtenha_informacoes()
 
     # --- NOVO: DATA AUGMENTATION PARA GENERALIZAÇÃO ---
     # Isso resolve o problema de 100% no treino vs 60% na validação
@@ -67,7 +64,7 @@ if __name__ == "__main__":
         dimensao_assinatura=128
     )
 
-    # Aumentamos para 400 epochs para lidar com a maior massa de dados
+    # Aumentamos para 100 epochs para lidar com a maior massa de dados
     print("\n[TRIPLET] Treinando rede de embedding (100 epochs)...")
     treinador_triplet.executar_treinamento(triplets, epocas=100)
 
