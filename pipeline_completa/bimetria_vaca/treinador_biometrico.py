@@ -12,8 +12,8 @@ class TreinadorPorComparacao:
         # Inicializa a rede geradora de assinaturas
         self.modelo = RedeGeradoraDeAssinatura(dimensao_entrada, dimensao_assinatura).to(self.dispositivo)
         
-        # Função de Perda Triplet: O "Juiz" que pune a rede se a vaca errada estiver perto da certa
-        # margin=1.5 define a distância mínima de segurança entre vacas diferentes
+        # Função de Perda Triplet Margin: Garante que a assinatura da âncora esteja mais próxima da positiva do que da negativa por uma margem mínima
+        # margin=1.0 define a distância mínima de segurança entre vacas diferentes
         self.funcao_perda = nn.TripletMarginLoss(margin=1.0, p=2)
         
         # Otimizador: O algoritmo que ajusta os pesos da rede para diminuir o erro

@@ -1,23 +1,20 @@
-# Bibliotecas principais
-ultralytics>=8.0.0
+# Processamento de Imagem e Visão
+ultralytics
 opencv-python
+Pillow
 
-# Motor de IA (Versões estáveis para CPU/GPU)
+# Deep Learning (Assinatura e DINOv2)
 torch
 torchvision
-torchaudio
+timm
 
-# Processamento e Extração de Features (Item 3 do seu trabalho)
-numpy
-pandas
-scipy
+# Machine Learning e Estatística
 scikit-learn
+xgboost
+numpy
+joblib
 
-# Visualização e logs
+# Visualização e Utilidades
 matplotlib
-tqdm
-pyyaml
-
-scikit-image
-
+seaborn
 python-dotenv
