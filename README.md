@@ -1,13 +1,13 @@
-# 🐄 Biometria Bovina Híbrida: Identificação Individual via Pose e Deep Learning
+# 🐄 Biometria Bovina Híbrida: Identificação Individual via Pose e Deep Learning:
 
 Este projeto implementa um pipeline de visão computacional de ponta para a identificação individual de gado. Diferente de métodos tradicionais, este sistema utiliza uma abordagem híbrida que combina a estrutura física do animal (biometria geométrica) com padrões de pelagem (biometria visual).
 
-## ✍️ Ciclo de preparação
+## ✍️ Ciclo de preparação:
 
 1. **Annotate Dataset:** Marcação manual dos 8 pontos-chave anatômicos em imagens de vacas (Cernelha, Dorso, Quadril Central, Inserção da Cauda, Âncoras e Isquios).
 2. **Treino e avaliação do modelo:** Foi utilizando a versão **YOLO26n-Pose** para o treinamento e validação.
    
-## 🚀 Funcionalidades Principais
+## 🚀 Funcionalidades Principais:
 
 * **Detecção de Pose (YOLO26n-Pose):** Identificação automática de 8 pontos-chave anatômicos.
 * **Extração Visual (DINOv2):** Uso de Vision Transformers (ViT) para capturar texturas e manchas.
@@ -16,7 +16,7 @@ Este projeto implementa um pipeline de visão computacional de ponta para a iden
 
 ---
 
-## 🏗️ Arquitetura do Sistema
+## 🏗️ Arquitetura do Sistema:
 
 O fluxo de processamento é dividido em quatro camadas principais:
 
@@ -27,4 +27,5 @@ O fluxo de processamento é dividido em quatro camadas principais:
 
 ---
 
-## 🛠️ Instalação e Uso
+## 🛠️ Instalação e Uso:
+
