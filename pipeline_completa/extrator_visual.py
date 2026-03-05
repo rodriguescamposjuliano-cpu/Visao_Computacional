@@ -5,8 +5,8 @@ import cv2
 from PIL import Image
 
 class ExtratorVisual:
-    def __init__(self, device="mps"):
-        self.device = device
+    def __init__(self):
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 
         # Carrega o modelo DINOv2 pré-treinado pelo Facebook/Google.
         self.modelo = timm.create_model(
