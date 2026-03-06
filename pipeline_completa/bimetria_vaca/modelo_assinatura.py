@@ -8,12 +8,13 @@ class RedeGeradoraDeAssinatura(nn.Module):
         super().__init__()
 
         self.network = nn.Sequential(
-             nn.Linear(512, 512),
+            nn.Linear(input_dim, 512), 
             nn.BatchNorm1d(512),
             nn.LeakyReLU(0.1),
-            
-
-           
+            nn.Dropout(0.2),
+            nn.Linear(512, 512),
+            nn.BatchNorm1d(512),
+            nn.LeakyReLU(0.1),
             
             nn.Linear(512, embedding_dim)
         )
