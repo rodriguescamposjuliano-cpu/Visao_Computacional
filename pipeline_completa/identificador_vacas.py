@@ -26,7 +26,7 @@ class IdentificadorVacas:
         self.modelo = XGBClassifier(
             n_estimators=1000,
             max_depth=3,            # Reduzido para 3 para ser mais simples
-            learning_rate=0.001,    # Aprendizado mais lento e cauteloso
+            learning_rate=0.005,    # Aprendizado mais lento e cauteloso
             subsample=0.6,          # Usa apenas 60% dos dados por árvore (força generalização)
             colsample_bytree=0.6,
             reg_alpha=5.0,          # L1 muito mais forte para ignorar ruído
