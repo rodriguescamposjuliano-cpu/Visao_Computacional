@@ -6,7 +6,9 @@ Este projeto implementa um pipeline de visão computacional de ponta para a iden
 
 1. **Annotate Dataset:** Marcação manual dos 8 pontos-chave anatômicos em imagens de vacas (Cernelha, Dorso, Quadril Central, Inserção da Cauda, Âncoras e Isquios).
 2. **Treino e avaliação do modelo:** Foi utilizando a versão **YOLO26n-Pose** para o treinamento e validação.
-   
+
+---
+
 ## 🚀 Funcionalidades Principais:
 
 * **Detecção de Pose (YOLO26n-Pose):** Identificação automática de 8 pontos-chave anatômicos.
@@ -71,7 +73,7 @@ pipeline = PipelineIdentificacaoVacas(caminho_modelo_pose='yolo26n-pose.pt')
 # Extrai o vetor de características (features)
 vetor_features = pipeline.extrair_features_imagem('caminho/para/vaca.jpg')
 ```
-
+---
 ## 📂 Estrutura Principal do Repositório
 * `main.py`: Script principal para treino e validação do modelo YOLO26.
 
