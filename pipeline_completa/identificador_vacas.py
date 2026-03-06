@@ -38,22 +38,11 @@ class IdentificadorVacas:
         eval_set = [(X_train_int, y_train_int), (X_val_int, y_val_int)]
         self.modelo.fit(X_train_int, y_train_int, eval_set=eval_set, verbose=False)
 
-        self.plot_learning_curve()
-
-    def plot_learning_curve(self):
-        results = self.modelo.evals_result()
-        plt.figure(figsize=(10, 5))
-        plt.plot(results['validation_0']['mlogloss'], label='Treino')
-        plt.plot(results['validation_1']['mlogloss'], label='Validação Interna')
-        plt.title('Gráfico para Avaliação de Overfitting (Log Loss)')
-        plt.xlabel('Épocas')
-        plt.ylabel('Loss')
-        plt.legend()
-        plt.grid(True)
-        plt.savefig('curva_aprendizado_xgboost.png')
-        plt.show()
+        ##self.plot_learning_curve()
 
     def classificar(self, matriz_features):
         if self.modelo is None: return None
         y_pred_idx = self.modelo.predict(matriz_features)
         return np.array([self.classes_no_treino[i] for i in y_pred_idx.astype(int)])
+    
+   

@@ -55,5 +55,5 @@ class PipelineIdentificacaoVacas:
             return vetor_features
 
         except Exception as erro:
-            logging.error(f"Erro ao processar {caminho_imagem}: {str(erro)}")
+            logging.error(f"Erro ao processar  {caminho_imagem}: {str(erro)}")
             return None
