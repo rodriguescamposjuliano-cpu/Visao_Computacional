@@ -29,3 +29,64 @@ O fluxo de processamento é dividido em quatro camadas principais:
 
 ## 🛠️ Instalação e Uso:
 
+#### 1.  **Requisitos do Sistema:**
+
+O projeto foi desenvolvido em Python 3.8+ e utiliza bibliotecas de ponta para processamento de imagem, Deep Learning e Machine Learning. Para instalar todas as dependências necessárias, execute:
+
+```Bash
+pip install -r requirements.txt
+```
+
+As principais bibliotecas utilizadas são:
+* **Visão Computacional:** `ultralytics` (YOLOv26), `opencv-python` e `Pillow`.
+* **Deep Learning:** `torch`, `torchvision` e `timm` (para o DINOv2).
+* **Machine Learning:** `scikit-learn` e `xgboost`.
+
+#### 2. **Treinamento do Modelo de Pose (YOLO26n-Pose)**
+O arquivo `main.py` gerencia o ciclo de treinamento e validação dos 8 pontos-chave anatômicos:
+
+* **Configuração:** O treino utiliza o otimizador `AdamW`, 100 épocas e aumentos de dados (augmentations) específicos como `flipud` e `scale` para garantir robustez.
+
+* **Augmentation:** Foram aplicados ajustes finos de aumento de dados, incluindo `flipud` (1.0), `scale` (0.5) e `degrees` (5.0) para aumentar a robustez do modelo.
+
+* **Execução:**
+
+
+```Bash
+python main.py
+```
+
+* **Saída:** Os pesos e métricas de precisão (mAP) são salvos automaticamente no diretório `trabalho_vaca/resultados`.
+
+#### 3. **Execução do Pipeline de Identificação**
+Para realizar a identificação individual a partir de uma nova imagem, utilize a classe orquestradora:
+
+
+```Python
+from pipeline_completa.pipeline_identificacao_vacas import PipelineIdentificacaoVacas
+
+# Inicializa o pipeline com o modelo de pose treinado
+pipeline = PipelineIdentificacaoVacas(caminho_modelo_pose='yolo26n-pose.pt')
+
+# Extrai o vetor de características (features)
+vetor_features = pipeline.extrair_features_imagem('caminho/para/vaca.jpg')
+```
+
+## 📂 Estrutura Principal do Repositório
+* `main.py`: Script principal para treino e validação do modelo YOLO26.
+
+* `pipeline_completa/`: Contém os módulos de extração biométrica e visual (DINOv2).
+
+* `vaca_data.yaml`: Definição dos caminhos do dataset e classes para o YOLO.
+
+* `requirements.txt`: Listagem de bibliotecas como ultralytics, timm e xgboost.
+
+* `yolo26n-pose.pt`: Pesos pré-treinados do modelo de pose.
+
+
+
+## 📝 Notas de Implementação:
+
+* **Hardware:** O script de treino está configurado para utilizar `device='mps'` (Metal Performance Shaders para Mac). Para outros sistemas, altere para `'0'` (GPU NVIDIA) ou `'cpu'`.
+
+* **Logs:** O sistema utiliza a biblioteca `logging` para monitorar falhas na detecção de keypoints durante o processo de extração.
